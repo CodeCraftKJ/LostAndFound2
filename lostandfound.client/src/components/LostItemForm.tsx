@@ -12,7 +12,6 @@ const LostItemForm: React.FC<LostItemFormProps> = ({ refreshList }) => {
     const [location, setLocation] = useState('');
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
 
     const handleSubmitLost = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -25,7 +24,6 @@ const LostItemForm: React.FC<LostItemFormProps> = ({ refreshList }) => {
             user: {
                 email,
                 userName,
-                passwordHash: password,
             },
         };
 
@@ -45,7 +43,6 @@ const LostItemForm: React.FC<LostItemFormProps> = ({ refreshList }) => {
         setLocation('');
         setUserName('');
         setEmail('');
-        setPassword('');
     };
 
     return (
@@ -77,17 +74,6 @@ const LostItemForm: React.FC<LostItemFormProps> = ({ refreshList }) => {
                 <div className="form-item">
                     <label htmlFor="email">Email:</label>
                     <input type="email" id="lost-item-email" placeholder="Enter email" value={email} onChange={e => setEmail(e.target.value)} required />
-                </div>
-                <div className="form-item">
-                    <label htmlFor="password">Password:</label>
-                    <input
-                        type="password"
-                        id="lost-item-password"
-                        placeholder="Enter password"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        required
-                    />
                 </div>
                 <button type="submit">Report a Lost Item</button>
             </form>

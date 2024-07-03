@@ -12,7 +12,6 @@ const FoundItemForm: React.FC<FoundItemFormProps> = ({ refreshList }) => {
     const [location, setLocation] = useState('');
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
 
     const handleSubmitFound = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -25,7 +24,6 @@ const FoundItemForm: React.FC<FoundItemFormProps> = ({ refreshList }) => {
             user: {
                 email,
                 userName,
-                passwordHash: password,
             },
         };
 
@@ -45,7 +43,6 @@ const FoundItemForm: React.FC<FoundItemFormProps> = ({ refreshList }) => {
         setLocation('');
         setUserName('');
         setEmail('');
-        setPassword('');
     };
 
     return (
@@ -77,17 +74,6 @@ const FoundItemForm: React.FC<FoundItemFormProps> = ({ refreshList }) => {
                 <div className="form-item">
                     <label htmlFor="email">Email:</label>
                     <input type="email" id="email" placeholder="Enter email" value={email} onChange={e => setEmail(e.target.value)} required />
-                </div>
-                <div className="form-item">
-                    <label htmlFor="password">Password:</label>
-                    <input
-                        type="password"
-                        id="password"
-                        placeholder="Enter password"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        required
-                    />
                 </div>
                 <button type="submit">Report a Found Item</button>
             </form>
