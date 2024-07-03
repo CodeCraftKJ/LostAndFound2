@@ -1,79 +1,67 @@
-﻿using LostAndFound.Server.Entities;
+﻿using LostAndFound.Server.Data;
+using LostAndFound.Server.Entities;
 using LostAndFound.Server.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
-namespace LostAndFound.Server.Controllers
+
+[ApiController]
+[Route("api/[controller]")]
+public class FoundItemsController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class FoundItemsController : ControllerBase
+    private readonly IFoundItemRepository _foundItemRepository;
+
+    public FoundItemsController(IFoundItemRepository foundItemRepository)
     {
-        private readonly IFoundItemRepository _foundItemRepository;
-        private readonly IUserRepository _userRepository;
+        _foundItemRepository = foundItemRepository;
+    }
 
-        public FoundItemsController(IFoundItemRepository foundItemRepository, IUserRepository userRepository)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<FoundItem>> GetFoundItem(int id)
+    {
+        var foundItem = await _foundItemRepository.GetFoundItemByIdAsync(id);
+        if (foundItem == null)
         {
-            _foundItemRepository = foundItemRepository;
-            _userRepository = userRepository;
+            return NotFound();
+        }
+        return foundItem;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<FoundItem>>> GetFoundItems()
+    {
+        return Ok(await _foundItemRepository.GetFoundItemsAsync());
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddFoundItem(FoundItem foundItem)
+    {
+        await _foundItemRepository.AddFoundItemAsync(foundItem);
+        return CreatedAtAction(nameof(GetFoundItem), new { id = foundItem.FoundItemID }, foundItem);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateFoundItem(int id, [FromBody] FoundItem foundItem)
+    {
+        if (id != foundItem.FoundItemID)
+        {
+            return BadRequest("ID in the URL does not match ID in the body.");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddFoundItem(FoundItem foundItem)
+        var existingItem = await _foundItemRepository.GetFoundItemByIdAsync(id);
+        if (existingItem == null)
         {
-            try
-            {
-                var existingUser = await _userRepository.GetUserByEmailAsync(foundItem.User.Email);
-                if (existingUser == null)
-                {
-                    var newUser = new User
-                    {
-                        UserName = foundItem.User.UserName,
-                        Email = foundItem.User.Email
-                    };
-
-                    await _userRepository.AddUserAsync(newUser);
-
-                    if (newUser.UserID <= 0)
-                    {
-                        return BadRequest("Failed to create user.");
-                    }
-                }
-
-                await _foundItemRepository.AddFoundItemAsync(foundItem);
-                return CreatedAtAction(nameof(GetFoundItem), new { id = foundItem.FoundItemID }, foundItem);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            return NotFound("Found item not found.");
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<FoundItem>> GetFoundItem(int id)
-        {
-            var foundItem = await _foundItemRepository.GetFoundItemByIdAsync(id);
-            if (foundItem == null)
-            {
-                return NotFound();
-            }
-            return foundItem;
-        }
+        await _foundItemRepository.UpdateFoundItemAsync(foundItem);
+        return NoContent();
+    }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<FoundItem>>> GetFoundItems()
-        {
-            var foundItems = await _foundItemRepository.GetFoundItemsAsync();
-            return Ok(foundItems);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFoundItem(int id)
-        {
-            await _foundItemRepository.DeleteFoundItemAsync(id);
-            return NoContent();
-        }
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteFoundItem(int id)
+    {
+        await _foundItemRepository.DeleteFoundItemAsync(id);
+        return NoContent();
     }
 }
