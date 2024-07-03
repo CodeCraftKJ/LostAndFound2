@@ -1,60 +1,79 @@
-﻿using LostAndFound.Server.Data;
-using LostAndFound.Server.Entities;
+﻿using LostAndFound.Server.Entities;
 using LostAndFound.Server.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-[ApiController]
-[Route("api/[controller]")]
-public class LostItemsController : ControllerBase
+namespace LostAndFound.Server.Controllers
 {
-    private readonly ILostItemRepository _lostItemRepository;
-
-    public LostItemsController(ILostItemRepository lostItemRepository)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class LostItemsController : ControllerBase
     {
-        _lostItemRepository = lostItemRepository;
-    }
+        private readonly ILostItemRepository _lostItemRepository;
+        private readonly IUserRepository _userRepository;
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<LostItem>> GetLostItem(int id)
-    {
-        var lostItem = await _lostItemRepository.GetLostItemByIdAsync(id);
-        if (lostItem == null)
+        public LostItemsController(ILostItemRepository lostItemRepository, IUserRepository userRepository)
         {
-            return NotFound();
-        }
-        return lostItem;
-    }
-
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<LostItem>>> GetLostItems()
-    {
-        return Ok(await _lostItemRepository.GetLostItemsAsync());
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> AddLostItem(LostItem lostItem)
-    {
-        await _lostItemRepository.AddLostItemAsync(lostItem);
-        return CreatedAtAction(nameof(GetLostItem), new { id = lostItem.LostItemID }, lostItem);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateLostItem(int id, LostItem lostItem)
-    {
-        if (id != lostItem.LostItemID)
-        {
-            return BadRequest();
+            _lostItemRepository = lostItemRepository;
+            _userRepository = userRepository;
         }
 
-        await _lostItemRepository.UpdateLostItemAsync(lostItem);
-        return NoContent();
-    }
+        [HttpPost]
+        public async Task<IActionResult> AddLostItem(LostItem lostItem)
+        {
+            try
+            {
+                var existingUser = await _userRepository.GetUserByEmailAsync(lostItem.User.Email);
+                if (existingUser == null)
+                {
+                    var newUser = new User
+                    {
+                        UserName = lostItem.User.UserName,
+                        Email = lostItem.User.Email
+                    };
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteLostItem(int id)
-    {
-        await _lostItemRepository.DeleteLostItemAsync(id);
-        return NoContent();
+                    await _userRepository.AddUserAsync(newUser);
+
+                    if (newUser.UserID <= 0)
+                    {
+                        return BadRequest("Failed to create user.");
+                    }
+                }
+
+                await _lostItemRepository.AddLostItemAsync(lostItem);
+                return CreatedAtAction(nameof(GetLostItem), new { id = lostItem.LostItemID }, lostItem);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<LostItem>> GetLostItem(int id)
+        {
+            var lostItem = await _lostItemRepository.GetLostItemByIdAsync(id);
+            if (lostItem == null)
+            {
+                return NotFound();
+            }
+            return lostItem;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<LostItem>>> GetLostItems()
+        {
+            var lostItems = await _lostItemRepository.GetLostItemsAsync();
+            return Ok(lostItems);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteLostItem(int id)
+        {
+            await _lostItemRepository.DeleteLostItemAsync(id);
+            return NoContent();
+        }
     }
 }

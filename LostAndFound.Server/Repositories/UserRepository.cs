@@ -1,6 +1,9 @@
 ﻿using LostAndFound.Server.Data;
 using LostAndFound.Server.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LostAndFound.Server.Repositories
 {
@@ -21,6 +24,11 @@ namespace LostAndFound.Server.Repositories
         public async Task<IEnumerable<User>> GetUsersAsync()
         {
             return await _context.Users.ToListAsync();
+        }
+
+        public async Task<User> GetUserByEmailAsync(string email)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task AddUserAsync(User user)
