@@ -1,52 +1,21 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
 import { LostItem } from '../types';
-import { fetchLostItems, deleteLostItem } from '../services/api';
 
-const LostItems = () => {
-    const [lostItems, setLostItems] = useState<LostItem[]>([]);
+interface LostItemsProps {
+    items: LostItem[];
+}
 
-    useEffect(() => {
-        const loadLostItems = async () => {
-            try {
-                const items = await fetchLostItems();
-                setLostItems(items);
-            } catch (error) {
-                console.error('Failed to fetch lost items', error);
-            }
-        };
-        loadLostItems();
-    }, []);
-
-    const handleDelete = async (id: number) => {
-        try {
-            await deleteLostItem(id);
-            setLostItems(lostItems.filter(item => item.lostItemID !== id));
-        } catch (error) {
-            console.error('Failed to delete lost item', error);
-        }
-    };
-
+const LostItems: React.FC<LostItemsProps> = ({ items }) => {
     return (
         <div>
-            <h2>Lost Items</h2>
-            <ul>
-                {lostItems.map(item => (
-                    <li key={item.lostItemID}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <div>
-                                <strong>{item.title}</strong> - {item.description}
-                            </div>
-                            <div>
-                                <button onClick={() => handleDelete(item.lostItemID)}>Delete</button>
-                            </div>
-                        </div>
-                        <div>
-                            <p>Location: {item.location}</p>
-                            <p>Date Lost: {new Date(item.dateLost).toLocaleDateString()}</p>
-                        </div>
-                    </li>
-                ))}
-            </ul>
+            {items.map(item => (
+                <div key={item.lostItemID} className="item-container">
+                    <h3>{item.title}</h3>
+                    <p><strong>Description:</strong> {item.description}</p>
+                    <p><strong>Location:</strong> {item.location}</p>
+                    <p><strong>Date Lost:</strong> {new Date(item.dateLost).toLocaleDateString()}</p>
+                </div>
+            ))}
         </div>
     );
 };

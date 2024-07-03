@@ -1,42 +1,21 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
 import { FoundItem } from '../types';
-import { fetchFoundItems, deleteFoundItem } from '../services/api';
 
-const FoundItems = () => {
-    const [foundItems, setFoundItems] = useState<FoundItem[]>([]);
+interface FoundItemsProps {
+    items: FoundItem[];
+}
 
-    useEffect(() => {
-        const loadFoundItems = async () => {
-            try {
-                const items = await fetchFoundItems();
-                setFoundItems(items);
-            } catch (error) {
-                console.error('Failed to fetch found items', error);
-            }
-        };
-        loadFoundItems();
-    }, []);
-
-    const handleDelete = async (id: number) => {
-        try {
-            await deleteFoundItem(id);
-            setFoundItems(foundItems.filter(item => item.foundItemID !== id));
-        } catch (error) {
-            console.error('Failed to delete found item', error);
-        }
-    };
-
+const FoundItems: React.FC<FoundItemsProps> = ({ items }) => {
     return (
         <div>
-            <h2>Found Items</h2>
-            <ul>
-                {foundItems.map(item => (
-                    <li key={item.foundItemID}>
-                        {item.title} - {item.description}
-                        <button onClick={() => handleDelete(item.foundItemID)}>Delete</button>
-                    </li>
-                ))}
-            </ul>
+            {items.map(item => (
+                <div key={item.foundItemID} className="item-container">
+                    <h3>{item.title}</h3>
+                    <p><strong>Description:</strong> {item.description}</p>
+                    <p><strong>Location:</strong> {item.location}</p>
+                    <p><strong>Date Found:</strong> {new Date(item.dateFound).toLocaleDateString()}</p>
+                </div>
+            ))}
         </div>
     );
 };
