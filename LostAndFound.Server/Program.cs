@@ -4,7 +4,19 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Configure CORS to allow requests from the frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("https://localhost:5173")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+});
+
+// Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -22,7 +34,7 @@ var app = builder.Build();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -30,7 +42,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Enable CORS for the frontend
+app.UseCors("AllowFrontend");
+
 app.UseAuthorization();
+
 app.MapControllers();
 app.MapFallbackToFile("/index.html");
 

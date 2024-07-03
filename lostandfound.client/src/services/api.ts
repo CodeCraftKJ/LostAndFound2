@@ -1,6 +1,6 @@
 import { LostItem, FoundItem } from '../types';
 
-const API_BASE_URL = 'https://localhost:7269/api';
+const API_BASE_URL = 'https://localhost:7057/api';
 
 export const fetchLostItems = async (): Promise<LostItem[]> => {
     const response = await fetch(`${API_BASE_URL}/LostItems`);
@@ -22,8 +22,12 @@ export const addLostItem = async (lostItem: LostItem): Promise<LostItem> => {
         },
         body: JSON.stringify(lostItem),
     });
-    if (!response.ok) throw new Error('Failed to add lost item');
-    return response.json();
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        throw new Error('Failed to add lost item');
+    }
+    return await response.json();
 };
 
 export const addFoundItem = async (foundItem: FoundItem): Promise<FoundItem> => {
@@ -34,8 +38,12 @@ export const addFoundItem = async (foundItem: FoundItem): Promise<FoundItem> => 
         },
         body: JSON.stringify(foundItem),
     });
-    if (!response.ok) throw new Error('Failed to add found item');
-    return response.json();
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        throw new Error('Failed to add found item');
+    }
+    return await response.json();
 };
 
 export const deleteLostItem = async (id: number): Promise<void> => {
