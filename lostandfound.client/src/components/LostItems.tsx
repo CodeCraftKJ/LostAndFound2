@@ -32,8 +32,18 @@ const LostItems = () => {
             <ul>
                 {lostItems.map(item => (
                     <li key={item.lostItemID}>
-                        {item.title} - {item.description}
-                        <button onClick={() => handleDelete(item.lostItemID)}>Delete</button>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <div>
+                                <strong>{item.title}</strong> - {item.description}
+                            </div>
+                            <div>
+                                <button onClick={() => handleDelete(item.lostItemID)}>Delete</button>
+                            </div>
+                        </div>
+                        <div>
+                            <p>Location: {item.location}</p>
+                            <p>Date Lost: {new Date(item.dateLost).toLocaleDateString()}</p>
+                        </div>
                     </li>
                 ))}
             </ul>
