@@ -2,7 +2,6 @@
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
     font-weight: 400;
-    color-scheme: light dark;
     color: rgba(255, 255, 255, 0.87);
     background-color: #242424;
     font-synthesis: none;
@@ -134,7 +133,6 @@ button {
             outline: 4px auto -webkit-focus-ring-color;
         }
 
-
 .item-container {
     background-color: rgba(255, 255, 255, 0.8);
     color: #1a1a1a;
@@ -154,46 +152,3 @@ button {
         margin-bottom: 0.3rem;
         line-height: 1.4;
     }
-
-@media (prefers-color-scheme: light) {
-    .item-container {
-        background-color: rgba(0, 0, 0, 0.1);
-        color: #1a1a1a;
-    }
-}
-
-@media (prefers-color-scheme: light) {
-    :root {
-        color: #213547;
-        background-color: #ffffff;
-    }
-
-    a:hover {
-        color: #747bff;
-    }
-
-    button {
-        background-color: #f9f9f9;
-        color: #646cff;
-    }
-
-        button:hover {
-            background-color: #646cff;
-            color: #ffffff;
-        }
-
-    .form-container {
-        background-color: #f9f9f9;
-        color: #1a1a1a;
-    }
-
-        .form-container input[type='text'],
-        .form-container input[type='email'],
-        .form-container input[type='password'],
-        .form-container input[type='date'],
-        .form-container textarea {
-            background-color: #ffffff;
-            color: #1a1a1a;
-            border: 1px solid #ccc;
-        }
-}
